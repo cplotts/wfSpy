@@ -8,24 +8,24 @@ using namespace System::Runtime::InteropServices;
 using namespace wfspy;
 using namespace System::Reflection;
 
-wchar_t __gc* GetAssemblyPath()
+const wchar_t __gc* GetAssemblyPath()
 {
 	return PtrToStringChars(Assembly::GetExecutingAssembly()->Location);
 }
 
 HMODULE GetThisModuleHandle()
 {
-	wchar_t __pin* wszModule = GetAssemblyPath();
+	const wchar_t __pin* wszModule = GetAssemblyPath();
 	return GetModuleHandle(wszModule);
 }
 
-wchar_t __gc* GetFileMappingName(int processId = GetCurrentProcessId(), int threadId = GetCurrentThreadId())
+const wchar_t __gc* GetFileMappingName(int processId = GetCurrentProcessId(), int threadId = GetCurrentThreadId())
 {
 	String* fileMappingName = String::Format(S"wfavhook_{0}_{1}_filemap", __box(processId), __box(threadId)); 
 	return PtrToStringChars(fileMappingName);
 }
 
-wchar_t __gc* GetEventName(int processId = GetCurrentProcessId(), int threadId = GetCurrentThreadId())
+const wchar_t __gc* GetEventName(int processId = GetCurrentProcessId(), int threadId = GetCurrentThreadId())
 {
 	String* eventName = String::Format(S"wfavhook_{0}_{1}_event", __box(processId), __box(threadId)); 
 	return PtrToStringChars(eventName);
@@ -109,7 +109,7 @@ struct WFAVCommunicationData
 
 		try
 		{
-			wchar_t __pin * wszFileMappingName = GetFileMappingName(processID, threadID);
+			const wchar_t __pin * wszFileMappingName = GetFileMappingName(processID, threadID);
 			HANDLE hFileMapping = CreateFileMapping(NULL, NULL, PAGE_READWRITE, 0, cbTotalLen, wszFileMappingName);
 			
 			int err = GetLastError();
@@ -134,7 +134,7 @@ struct WFAVCommunicationData
 			pwfcd->m_dwDataSize = dwDataSize;
 			pwfcd->m_dwTypeNameSize = dwTypeNameSize;
 			
-			wchar_t __pin * wszEventName = GetEventName(processID, threadID);
+			const wchar_t __pin * wszEventName = GetEventName(processID, threadID);
 			pwfcd->m_hEvent = CreateEvent(NULL, FALSE, FALSE, wszEventName);
 			
 			if (pwfcd->m_hEvent == NULL)
@@ -145,8 +145,8 @@ struct WFAVCommunicationData
 			_Win32X(hTargetProcess);
 
 			//Now copy the strings
-			wchar_t __pin * wszAssemblyPath = PtrToStringChars(assemblyPath);
-			wchar_t __pin * wszTypeName = PtrToStringChars(typeName);
+			const wchar_t __pin * wszAssemblyPath = PtrToStringChars(assemblyPath);
+			const wchar_t __pin * wszTypeName = PtrToStringChars(typeName);
 			
 			lstrcpy(pwfcd->_GetAssemblyName(), wszAssemblyPath);
 			lstrcpy(pwfcd->_GetTypeName(), wszTypeName);
@@ -183,12 +183,12 @@ extern "C" DWORD CALLBACK LocalHookProc(int code, DWORD wParam, LONG lParam)
 
 	try
 	{
-		wchar_t __pin* wszFileMappingName = GetFileMappingName();
+		const wchar_t __pin* wszFileMappingName = GetFileMappingName();
 		hMap = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, wszFileMappingName);
 		
 		_Win32X(hMap);
 		
-		wchar_t __pin* wszEventName = GetEventName();
+		const wchar_t __pin* wszEventName = GetEventName();
 		hEvent = OpenEvent(EVENT_ALL_ACCESS, FALSE, wszEventName);
 		
 		_Win32X(hEvent);

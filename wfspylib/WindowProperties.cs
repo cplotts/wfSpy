@@ -20,7 +20,6 @@ namespace wfspy
 		{
 			this.targetControl = targetControl;
 		}
-		
 
 		[Category("Type")]
 		public string Name
