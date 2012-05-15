@@ -4,7 +4,7 @@
 
 <p>It allows you to spy/browse the window hierarchy of a running Windows Forms application (without the need for a debugger) … and to change properties as well.</p>
 
-I work for <a href="http://www.starkey.com/">Starkey Laboratories, and in my work there, we modified and enhanced wfSpy (and continue to do so) for our purposes. I have an <a href="http://www.cplotts.com/2009/10/28/an-ode-to-wfspy/">article</a> at my blog which goes into the few, but nice, features that we added.
+I work for <a href="http://www.starkey.com/">Starkey Laboratories</a>, and in my work there, we modified and enhanced wfSpy (and continue to do so) for our purposes. I have an <a href="http://www.cplotts.com/2009/10/28/an-ode-to-wfspy/">article</a> at my blog which goes into the few, but nice, features that we added.
 
 <h2>.NET 1.1, 2.0, 4.0 Versions</h2>
 
