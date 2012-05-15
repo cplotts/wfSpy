@@ -7,21 +7,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wfspyhook", "wfspyhook\wfspyhook.vcxproj", "{75059BBF-4A64-4007-BE6F-0F0EC4E26718}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://ep2p-tfs2:8080/tfs/rnd
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = wfspy\\wfspy.csproj
-		SccProjectName1 = wfspy
-		SccLocalPath1 = wfspy
-		SccProjectUniqueName2 = wfspylib\\wfspylib.csproj
-		SccProjectName2 = wfspylib
-		SccLocalPath2 = wfspylib
-		SccProjectUniqueName3 = wfspyhook\\wfspyhook.vcxproj
-		SccProjectName3 = wfspyhook
-		SccLocalPath3 = wfspyhook
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
