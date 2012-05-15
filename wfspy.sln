@@ -1,0 +1,55 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wfspy", "wfspy\wfspy.csproj", "{CDC9EFA8-1404-4C8B-B59E-82FD9E344511}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wfspylib", "wfspylib\wfspylib.csproj", "{E60DA077-149C-4A1E-AE9E-E9EC40D489BC}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wfspyhook", "wfspyhook\wfspyhook.vcproj", "{75059BBF-4A64-4007-BE6F-0F0EC4E26718}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SourceCodeControl) = preSolution
+		SccNumberOfProjects = 4
+		SccLocalPath0 = .
+		CanCheckoutShared = false
+		SolutionUniqueID = {BC8495F8-723E-4060-B5C8-F569F396D472}
+		SccProjectUniqueName1 = wfspy\\wfspy.csproj
+		SccProjectName1 = $/Shared/Utilities/wfSpy/1.1/wfspy
+		SccLocalPath1 = wfspy
+		CanCheckoutShared = false
+		SccProjectUniqueName2 = wfspylib\\wfspylib.csproj
+		SccProjectName2 = $/Shared/Utilities/wfSpy/1.1/wfspylib
+		SccLocalPath2 = wfspylib
+		CanCheckoutShared = false
+		SccProjectUniqueName3 = wfspyhook\\wfspyhook.vcproj
+		SccProjectName3 = $/Shared/Utilities/wfSpy/1.1/wfspyhook
+		SccLocalPath3 = wfspyhook
+		CanCheckoutShared = false
+	EndGlobalSection
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{CDC9EFA8-1404-4C8B-B59E-82FD9E344511}.Debug.ActiveCfg = Debug|.NET
+		{CDC9EFA8-1404-4C8B-B59E-82FD9E344511}.Debug.Build.0 = Debug|.NET
+		{CDC9EFA8-1404-4C8B-B59E-82FD9E344511}.Release.ActiveCfg = Release|.NET
+		{CDC9EFA8-1404-4C8B-B59E-82FD9E344511}.Release.Build.0 = Release|.NET
+		{E60DA077-149C-4A1E-AE9E-E9EC40D489BC}.Debug.ActiveCfg = Debug|.NET
+		{E60DA077-149C-4A1E-AE9E-E9EC40D489BC}.Debug.Build.0 = Debug|.NET
+		{E60DA077-149C-4A1E-AE9E-E9EC40D489BC}.Release.ActiveCfg = Release|.NET
+		{E60DA077-149C-4A1E-AE9E-E9EC40D489BC}.Release.Build.0 = Release|.NET
+		{75059BBF-4A64-4007-BE6F-0F0EC4E26718}.Debug.ActiveCfg = Debug|Win32
+		{75059BBF-4A64-4007-BE6F-0F0EC4E26718}.Debug.Build.0 = Debug|Win32
+		{75059BBF-4A64-4007-BE6F-0F0EC4E26718}.Release.ActiveCfg = Release|Win32
+		{75059BBF-4A64-4007-BE6F-0F0EC4E26718}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
