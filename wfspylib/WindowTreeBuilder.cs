@@ -8,11 +8,13 @@ namespace wfspy
 	/// </summary>
 	public class WindowTreeBuilder
 	{
-		Hashtable hwndNodeMap = new Hashtable();		
+		private readonly WindowTreeBuilder previousWindowTreeBuilder;
+		Hashtable hwndNodeMap = new Hashtable();
 		WindowTreeNode rootNode = new WindowTreeNode(UnmanagedMethods.GetDesktopWindow());
 
-		public WindowTreeBuilder()
+		public WindowTreeBuilder(WindowTreeBuilder previousWindowTreeBuilder)
 		{
+			this.previousWindowTreeBuilder = previousWindowTreeBuilder;
 		}
 
 		public WindowTreeNode RootNode
@@ -125,5 +127,24 @@ namespace wfspy
 			UnmanagedMethods.EnumThreadWindows(threadId, new WindowEnumProc(this.OnEnumThreadWindow), IntPtr.Zero);
 		}
 
+		public void Expand()
+		{
+			if (previousWindowTreeBuilder != null)
+			{
+				foreach (DictionaryEntry entry in previousWindowTreeBuilder.hwndNodeMap)
+				{
+					if (hwndNodeMap.ContainsKey(entry.Key))
+					{
+						WindowTreeNode oldWindowTreeNode = (WindowTreeNode)entry.Value;
+						if (oldWindowTreeNode.IsExpanded)
+						{
+							WindowTreeNode newWindowTreeNode = (WindowTreeNode)hwndNodeMap[entry.Key];
+							newWindowTreeNode.Expand();
+						}
+					}
+				}
+			}
+			RootNode.Expand();
+		}
 	}
 }

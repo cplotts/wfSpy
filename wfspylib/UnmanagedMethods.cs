@@ -71,6 +71,13 @@ namespace wfspy
 		[DllImport("user32.dll")]
 		public static extern IntPtr GetClientRect(IntPtr hwnd, ref RECT rc);
 
+		[DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool IsWow64Process([In] IntPtr hProcess, [Out] out bool lpSystemInfo);
+
+		[DllImport("oleacc.dll", SetLastError = true)]
+		internal static extern IntPtr GetProcessHandleFromHwnd(IntPtr hwnd);
+
 		public static string GetWindowText(IntPtr hwnd)
 		{
 			int bufLen = GetWindowTextLength(hwnd) + 1;

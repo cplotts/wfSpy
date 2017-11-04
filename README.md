@@ -12,6 +12,6 @@ I work for <a href="http://www.starkey.com/">Starkey Laboratories</a>, and in my
 
 <p>The master branch currently is the .NET 4.0 version of the utility ... i.e. the latest released version of the framework as of this writing. I speculate that wfSpy will need to be modified yet again when .NET 4.5 releases since there is a new version of the CLR coming with .NET 4.5.</p>
 
-<h2>x86 Only</h2>
+<h2>x86 or x64</h2>
 
-<p>I currently have not gone to any effort to get wfSpy to work with 64-bit applications. It shouldn't be too hard, though. If you do get it to work with 64-bit applications, please contribute those changes back to this project.</p>
+<p>Can spy on eiter x86 or x64, but only as compiled i.e.: there are currently no support for using the 64-bit version to spy on 32-bit windows. It shouldn't be too hard, though. If you do get it to work, please contribute those changes back to this project.</p>
