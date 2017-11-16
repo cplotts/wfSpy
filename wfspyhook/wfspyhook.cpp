@@ -8,27 +8,39 @@ using namespace System::Runtime::InteropServices;
 using namespace wfspy;
 using namespace System::Reflection;
 
-const wchar_t __gc* GetAssemblyPath()
+const interior_ptr<const wchar_t> GetAssemblyPath()
 {
 	return PtrToStringChars(Assembly::GetExecutingAssembly()->Location);
 }
 
 HMODULE GetThisModuleHandle()
 {
-	const wchar_t __pin* wszModule = GetAssemblyPath();
+	pin_ptr<const wchar_t> wszModule = GetAssemblyPath();
 	return GetModuleHandle(wszModule);
 }
 
-const wchar_t __gc* GetFileMappingName(int processId = GetCurrentProcessId(), int threadId = GetCurrentThreadId())
+interior_ptr<const wchar_t> GetFileMappingName(int processId = GetCurrentProcessId(), int threadId = GetCurrentThreadId())
 {
-	String* fileMappingName = String::Format(S"wfavhook_{0}_{1}_filemap", __box(processId), __box(threadId)); 
+	String^ fileMappingName = String::Format("wfavhook_{0}_{1}_filemap", processId, threadId);
 	return PtrToStringChars(fileMappingName);
 }
 
-const wchar_t __gc* GetEventName(int processId = GetCurrentProcessId(), int threadId = GetCurrentThreadId())
+interior_ptr<const wchar_t> GetEventName(int processId = GetCurrentProcessId(), int threadId = GetCurrentThreadId())
 {
-	String* eventName = String::Format(S"wfavhook_{0}_{1}_event", __box(processId), __box(threadId)); 
+	String^ eventName = String::Format("wfavhook_{0}_{1}_event", processId, threadId);
 	return PtrToStringChars(eventName);
+}
+
+void DumpString(String^ name, String^ text)
+{
+	String^ message = String::Format("DumpString {0} {1:x04}", name, text->Length);
+	for (size_t i = 0; i < text->Length; i++)
+	{
+		if (i % 8 == 0) message = message + ": ";
+		else if (i % 4 == 0) message = message + ". ";
+		message = message + String::Format("{0:x02} ", (int)text[i]);
+	}
+	System::Diagnostics::Debug::WriteLine(message);
 }
 
 template<class T>
@@ -67,24 +79,29 @@ struct WFAVCommunicationData
 	}
 	
 	//managed variants of the above methods
-	String* GetAssemblyName()
+	String^ GetAssemblyName()
 	{
-		return _GetAssemblyName();
+		return GetString(_GetAssemblyName(), m_dwAssemblyPathSize);
 	}
 	
-	String* GetTypeName()
+	String^ GetTypeName()
 	{
-		return _GetTypeName();
+		return GetString(_GetTypeName(), m_dwTypeNameSize);
 	}
 	
-	Byte GetData() []
+	array<System::Byte>^ GetData()
 	{
-		Byte data[] = new Byte[m_dwDataSize];
+		array<System::Byte>^ data = gcnew array<System::Byte>(m_dwDataSize);
 		Marshal::Copy(IntPtr(_GetData()), data, 0, m_dwDataSize);
-
 		return data;
 	}
-	
+
+	String^ GetString(LPWSTR rawData, DWORD dwDataSize)
+	{
+		int length = dwDataSize / sizeof(WCHAR) - 1;
+		return gcnew String(rawData, 0, length);
+	}
+
 	void Cleanup()
 	{
 		if (m_hEvent)
@@ -94,7 +111,7 @@ struct WFAVCommunicationData
 			CloseHandle(m_hFileMap);
 	}
 	
-	static WFAVCommunicationData* Construct(int processID, int threadID, String* assemblyPath, String* typeName, Byte additionalData[])
+	static WFAVCommunicationData* Construct(int processID, int threadID, String^ assemblyPath, String^ typeName, array<System::Byte>^ additionalData)
 	{
 		DWORD dwAssemblyPathSize = (assemblyPath->Length + 1)*sizeof(WCHAR);
 		DWORD dwTypeNameSize = (typeName->Length + 1)*sizeof(WCHAR);
@@ -109,7 +126,7 @@ struct WFAVCommunicationData
 
 		try
 		{
-			const wchar_t __pin * wszFileMappingName = GetFileMappingName(processID, threadID);
+			pin_ptr<const wchar_t> wszFileMappingName = GetFileMappingName(processID, threadID);
 			HANDLE hFileMapping = CreateFileMapping(NULL, NULL, PAGE_READWRITE, 0, cbTotalLen, wszFileMappingName);
 			
 			int err = GetLastError();
@@ -120,7 +137,7 @@ struct WFAVCommunicationData
 			if (err == ERROR_ALREADY_EXISTS)
 			{
 				CloseHandle(hFileMapping);
-				throw new InvalidOperationException(); //Only one process can inject at a time
+				throw gcnew InvalidOperationException(); //Only one process can inject at a time
 			}
 
 			pwfcd = (WFAVCommunicationData*)MapViewOfFile(hFileMapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
@@ -134,7 +151,7 @@ struct WFAVCommunicationData
 			pwfcd->m_dwDataSize = dwDataSize;
 			pwfcd->m_dwTypeNameSize = dwTypeNameSize;
 			
-			const wchar_t __pin * wszEventName = GetEventName(processID, threadID);
+			pin_ptr<const wchar_t> wszEventName = GetEventName(processID, threadID);
 			pwfcd->m_hEvent = CreateEvent(NULL, FALSE, FALSE, wszEventName);
 			
 			if (pwfcd->m_hEvent == NULL)
@@ -145,8 +162,8 @@ struct WFAVCommunicationData
 			_Win32X(hTargetProcess);
 
 			//Now copy the strings
-			const wchar_t __pin * wszAssemblyPath = PtrToStringChars(assemblyPath);
-			const wchar_t __pin * wszTypeName = PtrToStringChars(typeName);
+			pin_ptr<const wchar_t> wszAssemblyPath = PtrToStringChars(assemblyPath);
+			pin_ptr<const wchar_t> wszTypeName = PtrToStringChars(typeName);
 			
 			lstrcpy(pwfcd->_GetAssemblyName(), wszAssemblyPath);
 			lstrcpy(pwfcd->_GetTypeName(), wszTypeName);
@@ -154,7 +171,7 @@ struct WFAVCommunicationData
 		
 			CloseHandle(hTargetProcess);
 		}
-		catch(Exception* e)
+		catch(Exception^ e)
 		{
 			if (pwfcd)
 			{
@@ -172,7 +189,11 @@ struct WFAVCommunicationData
 extern "C" DWORD CALLBACK LocalHookProc(int code, DWORD wParam, LONG lParam)
 {
 	if (code < 0)
+	{
+		//System::Diagnostics::Debug::WriteLine(String::Format("LocalHookProc chain: code={0:X04}, wParam={1:X08}, lParam={2:X08}", code, wParam, lParam));
 		return CallNextHookEx(NULL, code, wParam, lParam);
+	}
+	//System::Diagnostics::Debug::WriteLine("LocalHookProc enter");
 
 	DWORD dwRet;
 	
@@ -183,12 +204,12 @@ extern "C" DWORD CALLBACK LocalHookProc(int code, DWORD wParam, LONG lParam)
 
 	try
 	{
-		const wchar_t __pin* wszFileMappingName = GetFileMappingName();
+		pin_ptr<const wchar_t> wszFileMappingName = GetFileMappingName();
 		hMap = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, wszFileMappingName);
 		
 		_Win32X(hMap);
 		
-		const wchar_t __pin* wszEventName = GetEventName();
+		pin_ptr<const wchar_t> wszEventName = GetEventName();
 		hEvent = OpenEvent(EVENT_ALL_ACCESS, FALSE, wszEventName);
 		
 		_Win32X(hEvent);
@@ -203,15 +224,17 @@ extern "C" DWORD CALLBACK LocalHookProc(int code, DWORD wParam, LONG lParam)
 			SetEvent(hEvent);
 		}
 
-		Assembly* assem = Assembly::LoadFrom(pwfcd->GetAssemblyName());
-		String* typeName = pwfcd->GetTypeName();
-		Type* type = assem->GetType(typeName, true, true);
-		IHookInstall* hookinstall = __try_cast<IHookInstall*>(Activator::CreateInstance(type));
+		String^ assemblyName = pwfcd->GetAssemblyName();
+		System::Diagnostics::Debug::WriteLine(String::Format("LocalHookProc AssemblyName: '{0}'", assemblyName));
+		Assembly^ assem = Assembly::LoadFrom(assemblyName);
+		String^ typeName = pwfcd->GetTypeName();
+		Type^ type = assem->GetType(typeName, true, true);
+		IHookInstall^ hookinstall = safe_cast<IHookInstall^>(Activator::CreateInstance(type));
  		hookinstall->OnInstallHook(pwfcd->GetData());
 
 		bSuccess = true;
 	}
-	catch(Exception* e)
+	catch(Exception^ e)
 	{
 		System::Diagnostics::Trace::WriteLine(e->ToString());
 		
@@ -235,8 +258,9 @@ extern "C" DWORD CALLBACK LocalHookProc(int code, DWORD wParam, LONG lParam)
 	return dwRet;
 }
 
-void HookHelper::InstallIdleHandler(int processID, int threadID, String* assemblyLocation, String* typeName, Byte additionalData[])
+void HookHelper::InstallIdleHandler(int processID, int threadID, String^ assemblyLocation, String^ typeName, array<System::Byte>^ additionalData)
 {
+	System::Diagnostics::Debug::WriteLine("InstallIdleHandler enter");
 	WFAVCommunicationData* pwfcd = WFAVCommunicationData::Construct(processID, threadID, assemblyLocation, typeName, additionalData);
 
 	__try
@@ -252,14 +276,18 @@ void HookHelper::InstallIdleHandler(int processID, int threadID, String* assembl
 			PostThreadMessage(threadID, WM_NULL, 0, 0);
 
 			bool bError = (WaitForSingleObject(pwfcd->m_hEvent, 60*1000) != WAIT_OBJECT_0);
-			
+
 			UnhookWindowsHookEx(hhook);
 
 			if (bError || pwfcd->m_bErrorFlag)
-				throw new ApplicationException(S"Error waiting for hook to be setup");
+			{
+				throw gcnew ApplicationException(String::Format("Error waiting for hook to be setup, Error={0:X08}, ErrorFlag={1:X08}", bError, pwfcd->m_bErrorFlag));
+			}
 		}
 		else
+		{
 			Marshal::ThrowExceptionForHR(HRESULT_FROM_WIN32(GetLastError()));
+		}
 	}
 	__finally
 	{

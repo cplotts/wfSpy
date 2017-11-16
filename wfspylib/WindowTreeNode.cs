@@ -25,7 +25,10 @@ namespace wfspy
 		{
 			this.hwnd = hwnd;
 			string className = this.WindowClassName;
-			this.Text = String.Format("Window {0:X8} \"{1}\" {2}", hwnd.ToInt32(), WindowText, className);
+			IntPtr hProcess = UnmanagedMethods.GetProcessHandleFromHwnd(hwnd);
+
+			int size = Is64BitProcess(hProcess) ? 64 : 86;
+			this.Text = String.Format("Window {0:X8} \"{1}\" {2} (x{3})", hwnd.ToInt32(), WindowText, className, size);
 			
 			if (IsDotNetWindow(className))
 			{
@@ -44,7 +47,21 @@ namespace wfspy
 			
 			this.SelectedImageIndex = this.ImageIndex;
 		}
-		
+
+		static bool Is64BitProcess(IntPtr hProcess)
+		{
+			bool flag = false;
+
+			if (Environment.Is64BitOperatingSystem)
+			{
+				// On 64-bit OS, if a process is not running under Wow64 mode, 
+				// the process must be a 64-bit process.
+				flag = !(UnmanagedMethods.IsWow64Process(hProcess, out flag) && flag);
+			}
+
+			return flag;
+		}
+
 		public bool IsManaged
 		{
 			get

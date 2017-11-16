@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -26,6 +27,7 @@ namespace wfspy
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.ComponentModel.IContainer components;
+		private WindowTreeBuilder windowTreeBuilder;
 
 		public MainForm()
 		{
@@ -34,13 +36,17 @@ namespace wfspy
 			//
 			InitializeComponent();
 			FillTree();
+			if (IntPtr.Size == 8)
+				Text += " x64";
+			else
+				Text += " x86";
 		}
 		
 		private void FillTree()
 		{
 			this.windowTree.Nodes.Clear();
 
-			WindowTreeBuilder windowTreeBuilder = new WindowTreeBuilder();
+			windowTreeBuilder = new WindowTreeBuilder(windowTreeBuilder);
 			windowTreeBuilder.BuildAllWindowsTree();
 
 			if (this.IsHandleCreated)
@@ -49,7 +55,7 @@ namespace wfspy
 			windowTreeBuilder.FilterUnmanagedWindows();
 			
 			this.windowTree.Nodes.Add(windowTreeBuilder.RootNode);
-			windowTreeBuilder.RootNode.Expand();
+			windowTreeBuilder.Expand();
 		}
 
 		
